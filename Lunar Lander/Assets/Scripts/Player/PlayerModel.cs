@@ -9,6 +9,7 @@ public class PlayerModel : MonoBehaviour
 
     [HideInInspector] public int fuel;
     [HideInInspector] public int score;
+    public int scoreIncrease;
 
     [HideInInspector] public float height;
     [HideInInspector] public float horizontalSpeed;
@@ -17,10 +18,15 @@ public class PlayerModel : MonoBehaviour
 
     public static event Action<string, int> onStatUpdateI;
     public static event Action<string, float> onStatUpdateF;
+    public static event Action<int> onScoreUpdate;
+    public static event Action<float> onTimeReset;
 
     void OnEnable()
     {
+        GameManager.onLevelSetting += ResetTime;
         UIManager_Gameplay.onPauseChange += SetPause;
+
+        PlayerController.onLanding += UpdateScore;
     }
 
     void Start()
@@ -51,7 +57,10 @@ public class PlayerModel : MonoBehaviour
 
     void OnDisable()
     {
+        GameManager.onLevelSetting -= ResetTime;
         UIManager_Gameplay.onPauseChange -= SetPause;
+
+        PlayerController.onLanding -= UpdateScore;
     }
 
     void SetPause(bool state)
@@ -74,5 +83,22 @@ public class PlayerModel : MonoBehaviour
             onStatUpdateF("Vertical speed", verticalSpeed);
             onStatUpdateF("Time", time);
         }
+    }
+
+    void UpdateScore(bool landingSuccessful)
+    {
+        if (landingSuccessful)
+            score += scoreIncrease;
+
+        if (onScoreUpdate != null)
+            onScoreUpdate(score);
+    }
+
+    void ResetTime()
+    {
+        time = 0f;
+
+        if (onTimeReset != null)
+            onTimeReset(time);
     }
 }

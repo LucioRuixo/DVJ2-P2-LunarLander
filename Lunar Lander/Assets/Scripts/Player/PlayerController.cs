@@ -8,8 +8,12 @@ public class PlayerController : MonoBehaviour
     bool gamePaused;
     bool landing;
 
+    public int minInitialX;
+    public int maxInitialX;
+    public int InitialY;
     public int fuel;
     public int fuelUsagePerSecond;
+    int positionZ = 500;
 
     public float thrustForce;
     public float rotationForce;
@@ -23,6 +27,8 @@ public class PlayerController : MonoBehaviour
     float landingTimer;
     float landingTimerTarget;
 
+    public Vector3 initialRotationEuler;
+
     Rigidbody rb;
 
     public static event Action<bool> onThrustChange;
@@ -30,6 +36,8 @@ public class PlayerController : MonoBehaviour
 
     void OnEnable()
     {
+        GameManager.onLevelSetting += SetInitialValues;
+
         UIManager_Gameplay.onPauseChange += SetPause;
     }
 
@@ -40,6 +48,8 @@ public class PlayerController : MonoBehaviour
 
         height = GetHeight();
         landingTimerTarget = 3f;
+
+        initialRotationEuler = new Vector3(0f, 180f, 0f);
 
         rb = GetComponent<Rigidbody>();
         rb.maxAngularVelocity = 3f;
@@ -71,6 +81,8 @@ public class PlayerController : MonoBehaviour
 
                 if (landingTimer >= landingTimerTarget)
                 {
+                    landing = false;
+
                     if (onLanding != null)
                         onLanding(true);
                 }
@@ -115,6 +127,8 @@ public class PlayerController : MonoBehaviour
 
     void OnDisable()
     {
+        GameManager.onLevelSetting -= SetInitialValues;
+
         UIManager_Gameplay.onPauseChange -= SetPause;
     }
 
@@ -131,6 +145,15 @@ public class PlayerController : MonoBehaviour
 
             rb.WakeUp();
         }
+    }
+
+    void SetInitialValues()
+    {
+        int initialX = UnityEngine.Random.Range(minInitialX, maxInitialX);
+        Vector3 initialPosition = new Vector3(initialX, InitialY, positionZ);
+        transform.position = initialPosition;
+
+        transform.rotation = Quaternion.Euler(initialRotationEuler);
     }
 
     float GetHeight()

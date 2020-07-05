@@ -21,6 +21,8 @@ public class UIManager_Gameplay : MonoBehaviour
     {
         PlayerModel.onStatUpdateI += UpdateStatI;
         PlayerModel.onStatUpdateF += UpdateStatF;
+        PlayerModel.onScoreUpdate += UpdateScore;
+        PlayerModel.onTimeReset += ResetTime;
 
         PlayerController.onLanding += EnableLandingMenu;
     }
@@ -29,10 +31,12 @@ public class UIManager_Gameplay : MonoBehaviour
     {
         PlayerModel.onStatUpdateI -= UpdateStatI;
         PlayerModel.onStatUpdateF -= UpdateStatF;
+        PlayerModel.onScoreUpdate -= UpdateScore;
+        PlayerModel.onTimeReset -= ResetTime;
 
         PlayerController.onLanding -= EnableLandingMenu;
     }
-    
+
     void UpdateStatI(string stat, int value)
     {
         if (stat == "Fuel")
@@ -40,7 +44,7 @@ public class UIManager_Gameplay : MonoBehaviour
         else
             scoreText.text = "SCORE: " + value;
     }
-    
+
     void UpdateStatF(string stat, float value)
     {
         switch (stat)
@@ -62,9 +66,19 @@ public class UIManager_Gameplay : MonoBehaviour
         }
     }
 
+    void UpdateScore(int value)
+    {
+        scoreText.text = "SCORE: " + value;
+    }
+
+    void ResetTime(float value)
+    {
+        timeText.text = "TIME: " + ((int)(value / 60)).ToString() + ":" + ((int)(value % 60)).ToString("00");
+    }
+
     void EnableLandingMenu(bool landingSuccessful)
     {
-        landingText.text = landingSuccessful ? "YOUR SHIP HAS LANDED!" : "YOUR SHIP CHRASHED!";
+        landingMenu.GetComponent<LandingMenu>().landingSuccessful = landingSuccessful;
         landingMenu.SetActive(true);
     }
 
@@ -84,10 +98,5 @@ public class UIManager_Gameplay : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
-    }
-
-    public void GoToNextLevel()
-    {
-        
     }
 }

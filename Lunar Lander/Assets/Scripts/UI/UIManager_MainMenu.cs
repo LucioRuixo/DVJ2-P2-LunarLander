@@ -5,6 +5,7 @@ public class UIManager_MainMenu : MonoBehaviour
 {
     public GameObject mainMenu;
     public GameObject instructionsMenu;
+    public GameObject creditsMenu;
 
     public void Play()
     {
@@ -17,9 +18,19 @@ public class UIManager_MainMenu : MonoBehaviour
         instructionsMenu.SetActive(true);
     }
 
+    public void ViewCreditsMenu()
+    {
+        mainMenu.SetActive(false);
+        creditsMenu.SetActive(true);
+    }
+
     public void Return()
     {
-        instructionsMenu.SetActive(false);
+        if (instructionsMenu.activeSelf)
+            instructionsMenu.SetActive(false);
+        else
+            creditsMenu.SetActive(false);
+
         mainMenu.SetActive(true);
     }
 
