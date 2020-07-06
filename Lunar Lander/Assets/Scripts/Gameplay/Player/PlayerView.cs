@@ -26,19 +26,19 @@ public class PlayerView : MonoBehaviour
 
     void StopThrust()
     {
-        if (thrustPS.isPlaying)
+        if (thrustPS && thrustPS.isPlaying)
             thrustPS.Stop();
     }
 
     void ResetRocket()
     {
-        if (explosionPS.isPlaying)
+        if (explosionPS && explosionPS.isPlaying)
             explosionPS.Stop();
 
-        if (debrisPS.isPlaying)
+        if (debrisPS && debrisPS.isPlaying)
             debrisPS.Stop();
 
-        if (!rocketModel.activeSelf)
+        if (rocketModel && !rocketModel.activeSelf)
             rocketModel.SetActive(true);
     }
 
@@ -46,8 +46,7 @@ public class PlayerView : MonoBehaviour
     {
         if (!landingSuccessful)
         {
-            if (thrustPS.isPlaying)
-                thrustPS.Stop();
+            if (thrustPS.isPlaying) thrustPS.Stop();
 
             Explode();
         }
@@ -55,17 +54,19 @@ public class PlayerView : MonoBehaviour
 
     void Explode()
     {
-        if (rocketModel.activeSelf)
+        if (rocketModel && rocketModel.activeSelf)
         {
             rocketModel.SetActive(false);
 
-            explosionPS.Play();
-            debrisPS.Play();
+            if (explosionPS) explosionPS.Play();
+            if (debrisPS) debrisPS.Play();
         }
     }
 
     void OnDisable()
     {
+        GameManager.onLevelSetting -= ResetRocket;
+
         PlayerController.onThrustChange -= SetParticleSystem;
         PlayerController.onLanding -= CheckIfLandingFailed;
         PlayerController.onOutOfFuel -= StopThrust;

@@ -25,8 +25,9 @@ public class SplashScreenManager : MonoBehaviour
     {
         for (float t = 0f; t < fadeTime; t += waitTime)
         {
-            aGameBy.alpha += alphaStep;
-            companyName.alpha += alphaStep;
+            if (aGameBy) aGameBy.alpha += alphaStep;
+            if (companyName) companyName.alpha += alphaStep;
+
             yield return new WaitForSeconds(waitTime);
         }
 
@@ -34,8 +35,9 @@ public class SplashScreenManager : MonoBehaviour
 
         for (float t = 0f; t < fadeTime; t += waitTime)
         {
-            aGameBy.alpha -= alphaStep;
-            companyName.alpha -= alphaStep;
+            if (aGameBy) aGameBy.alpha -= alphaStep;
+            if (companyName) companyName.alpha -= alphaStep;
+
             yield return new WaitForSeconds(waitTime);
         }
 
@@ -46,7 +48,8 @@ public class SplashScreenManager : MonoBehaviour
     {
         for (float t = 0f; t < fadeTime; t += waitTime)
         {
-            title.alpha += alphaStep;
+            if (title) title.alpha += alphaStep;
+
             yield return new WaitForSeconds(waitTime);
         }
 
@@ -54,7 +57,8 @@ public class SplashScreenManager : MonoBehaviour
 
         for (float t = 0f; t < fadeTime; t += waitTime)
         {
-            title.alpha -= alphaStep;
+            if (title) title.alpha -= alphaStep;
+
             yield return new WaitForSeconds(waitTime);
         }
 

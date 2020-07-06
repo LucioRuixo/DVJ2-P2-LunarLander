@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
 
         initialRotationEuler = new Vector3(0f, 180f, 0f);
 
-        rb.maxAngularVelocity = 3f;
+        if (rb) rb.maxAngularVelocity = 3f;
     }
 
     void FixedUpdate()
@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetButton("Thrust") && fuel > 0)
             {
-                rb.AddForce(transform.up * Input.GetAxis("Thrust") * thrustForce * Time.fixedDeltaTime, ForceMode.Acceleration);
+                if (rb) rb.AddForce(transform.up * Input.GetAxis("Thrust") * thrustForce * Time.fixedDeltaTime, ForceMode.Acceleration);
 
                 if (fuel > 0f)
                 {
@@ -79,7 +79,7 @@ public class PlayerController : MonoBehaviour
             }
 
             if (Input.GetButton("Rotate"))
-                rb.AddTorque(transform.forward * Input.GetAxis("Rotate") * rotationForce * Time.fixedDeltaTime, ForceMode.Force);
+                if (rb) rb.AddTorque(transform.forward * Input.GetAxis("Rotate") * rotationForce * Time.fixedDeltaTime, ForceMode.Force);
 
             if (landing && !(velocity > maxLandingVelocity || angle > maxLandingAngle))
             {
@@ -126,28 +126,31 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!gamePaused && inputEnabled)
+        if (gamePaused || !inputEnabled)
+            return;
+
+        if (fuel > 0)
         {
-            if (fuel > 0)
-            {
-                if (Input.GetButtonDown("Thrust") && onThrustChange != null)
-                    onThrustChange(true);
+            if (Input.GetButtonDown("Thrust") && onThrustChange != null)
+                onThrustChange(true);
 
-                if (Input.GetButtonUp("Thrust") && onThrustChange != null)
-                    onThrustChange(false);
-            }
-            else if (!outOfFuel)
-            {
-                outOfFuel = true;
-                if (onOutOfFuel != null)
-                    onOutOfFuel();
-            }
+            if (Input.GetButtonUp("Thrust") && onThrustChange != null)
+                onThrustChange(false);
+        }
+        else if (!outOfFuel)
+        {
+            outOfFuel = true;
+            if (onOutOfFuel != null)
+                onOutOfFuel();
+        }
 
-            height = GetHeight();
+        height = GetHeight();
+        angle = Vector3.Angle(Vector3.up, transform.up);
+        if (rb)
+        {
             horizontalSpeed = rb.velocity.x;
             verticalSpeed = rb.velocity.y;
             velocity = rb.velocity.magnitude;
-            angle = Vector3.Angle(Vector3.up, transform.up);
         }
     }
 
@@ -162,6 +165,9 @@ public class PlayerController : MonoBehaviour
     void SetPause(bool state)
     {
         gamePaused = state;
+
+        if (!rb)
+            return;
 
         if (!rb.IsSleeping())
             rb.Sleep();
@@ -187,8 +193,11 @@ public class PlayerController : MonoBehaviour
 
         transform.rotation = Quaternion.Euler(initialRotationEuler);
 
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
+        if (rb)
+        {
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
     }
 
     float GetHeight()

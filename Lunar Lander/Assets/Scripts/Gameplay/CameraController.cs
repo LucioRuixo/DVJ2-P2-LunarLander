@@ -30,29 +30,28 @@ public class CameraController : MonoBehaviour
 
         offset = Vector3.zero;
         offset.y = offsetY;
-        offset.z = Mathf.Clamp(pivotController.height * zoomMultiplier * -1f, -maxZoomDistance, -minZoomDistance);
+        if (pivotController) offset.z = Mathf.Clamp(pivotController.height * zoomMultiplier * -1f, -maxZoomDistance, -minZoomDistance);
 
-        transform.position = pivot.position + offset;
+        if (pivot) transform.position = pivot.position + offset;
     }
 
     void Update()
     {
-        if (pivotEnabled)
-        {
-            if (transform.rotation.eulerAngles != rotationEuler)
-                transform.rotation = Quaternion.Euler(rotationEuler);
+        if (!pivotEnabled)
+            return;
 
-            if (offset.y != offsetY)
-                offset.y = offsetY;
+        if (transform.rotation.eulerAngles != rotationEuler)
+            transform.rotation = Quaternion.Euler(rotationEuler);
 
-            offset.z = Mathf.Clamp(pivotController.height * zoomMultiplier * -1f, -maxZoomDistance, -minZoomDistance);
-            transform.position = pivot.position + offset;
-        }
+        if (offset.y != offsetY)
+            offset.y = offsetY;
+
+        if (pivotController) offset.z = Mathf.Clamp(pivotController.height * zoomMultiplier * -1f, -maxZoomDistance, -minZoomDistance);
+        if (pivot) transform.position = pivot.position + offset;
     }
 
     void OnDisable()
     {
-
         GameManager.onLevelSetting -= EnablePivot;
 
         PlayerController.onLanding -= CheckIfLandingFailed;

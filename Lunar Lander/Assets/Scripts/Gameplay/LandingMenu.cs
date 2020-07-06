@@ -21,19 +21,19 @@ public class LandingMenu : MonoBehaviour
     {
         if (landingSuccessful)
         {
-            landingText.text = "YOUR SHIP HAS LANDED!";
-            scoreText.text = "SCORE: " + score;
-            buttonText.text = "NEXT LEVEL";
+            if (landingText) landingText.text = "YOUR SHIP HAS LANDED!";
+            if (scoreText) scoreText.text = "SCORE: " + score;
+            if (buttonText) buttonText.text = "NEXT LEVEL";
 
-            button.onClick.AddListener(SetLevel);
+            if (button) button.onClick.AddListener(SetLevel);
         }
         else
         {
-            landingText.text = "YOUR SHIP CRASHED!";
-            scoreText.text = "SCORE: " + score;
-            buttonText.text = "RETURN TO MAIN MENU";
+            if (landingText) landingText.text = "YOUR SHIP CRASHED!";
+            if (scoreText) scoreText.text = "SCORE: " + score;
+            if (buttonText) buttonText.text = "RETURN TO MAIN MENU";
 
-            button.onClick.AddListener(ReturnToMainMenu);
+            if (button) button.onClick.AddListener(ReturnToMainMenu);
         }
     }
 

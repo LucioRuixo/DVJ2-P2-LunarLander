@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         SetLevel();
-        Debug.Log("Hasta aca llega");
     }
 
     void OnDisable()
@@ -27,7 +26,7 @@ public class GameManager : MonoBehaviour
     {
         foreach (Transform terrain in terrains)
         {
-            terrain.gameObject.SetActive(false);
+            if (terrain) terrain.gameObject.SetActive(false);
         }
 
         int terrainIndex = UnityEngine.Random.Range(0, 3);

@@ -47,19 +47,19 @@ public class UIManager_Gameplay : MonoBehaviour
         switch (stat)
         {
             case "Fuel":
-                fuelText.text = "FUEL: " + (int)value;
+                if (fuelText) fuelText.text = "FUEL: " + (int)value;
                 break;
             case "Height":
-                heightText.text = "HEIGHT: " + value.ToString("0.0");
+                if (heightText) heightText.text = "HEIGHT: " + value.ToString("0.0");
                 break;
             case "Horizontal speed":
-                horizontalSpeedText.text = value >= 0f ? "HORIZONTAL SPEED: " + (int)value + "  >" : "HORIZONTAL SPEED: " + (int)value * -1 + "  <";
+                if (horizontalSpeedText) horizontalSpeedText.text = value >= 0f ? "HORIZONTAL SPEED: " + (int)value + "  >" : "HORIZONTAL SPEED: " + (int)value * -1 + "  <";
                 break;
             case "Vertical speed":
-                verticalSpeedText.text = value >= 0f ? "VERTICAL SPEED: " + (int)value + " /\\" : "VERTICAL SPEED: " + (int)value * -1 + " \\/";
+                if (verticalSpeedText) verticalSpeedText.text = value >= 0f ? "VERTICAL SPEED: " + (int)value + " /\\" : "VERTICAL SPEED: " + (int)value * -1 + " \\/";
                 break;
             case "Time":
-                timeText.text = "TIME: " + ((int)(value / 60)).ToString() + ":" + ((int)(value % 60)).ToString("00");
+                if (timeText) timeText.text = "TIME: " + ((int)(value / 60)).ToString() + ":" + ((int)(value % 60)).ToString("00");
                 break;
             default:
                 break;
@@ -68,24 +68,28 @@ public class UIManager_Gameplay : MonoBehaviour
 
     void UpdateScore(bool landingSuccessful, int value)
     {
-        if (landingSuccessful)
+        if (scoreText && landingSuccessful)
             scoreText.text = "SCORE: " + value;
     }
 
     void ResetStatsOnNewLevel(float newTime, float newFuel)
     {
-        timeText.text = "TIME: " + ((int)(newTime / 60)).ToString() + ":" + ((int)(newTime % 60)).ToString("00");
-        fuelText.text = "FUEL: " + (int)newFuel;
+        if (timeText) timeText.text = "TIME: " + ((int)(newTime / 60)).ToString() + ":" + ((int)(newTime % 60)).ToString("00");
+        if (fuelText) fuelText.text = "FUEL: " + (int)newFuel;
     }
 
     void EnableLandingMenu(bool landingSuccessful, int scoreDisplayValue)
     {
+        if (!landingMenu) return;
+
         landingMenu.GetComponent<LandingMenu>().InitializeValues(landingSuccessful, scoreDisplayValue);
         landingMenu.SetActive(true);
     }
 
     public void SetPauseMenuActive()
     {
+        if (!pauseMenu) return;
+
         pauseMenu.SetActive(!pauseMenu.activeSelf ? true : false);
 
         if (onPauseChange != null)
