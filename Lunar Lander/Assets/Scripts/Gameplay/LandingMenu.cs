@@ -13,7 +13,7 @@ public class LandingMenu : MonoBehaviour
 
     void OnEnable()
     {
-        landingText.text = landingSuccessful ? "YOUR SHIP HAS LANDED!" : "YOUR SHIP CHRASHED!";
+        landingText.text = landingSuccessful ? "YOUR SHIP HAS LANDED!" : "YOUR SHIP CRASHED!";
         setLevelButtonText.text = landingSuccessful ? "NEXT LEVEL" : "RESET LEVEL";
     }
 

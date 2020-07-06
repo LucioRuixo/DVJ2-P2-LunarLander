@@ -6,7 +6,9 @@ public class PlayerController : MonoBehaviour
     public PlayerModel model;
 
     bool gamePaused;
+    bool inputEnabled;
     bool landing;
+    bool outOfFuel;
 
     public int minInitialX;
     public int maxInitialX;
@@ -29,14 +31,16 @@ public class PlayerController : MonoBehaviour
 
     public Vector3 initialRotationEuler;
 
-    Rigidbody rb;
+    public Rigidbody rb;
 
     public static event Action<bool> onThrustChange;
     public static event Action<bool> onLanding;
+    public static event Action onOutOfFuel;
 
     void OnEnable()
     {
         GameManager.onLevelSetting += SetInitialValues;
+        GameManager.onLevelSetting += EnableInput;
 
         UIManager_Gameplay.onPauseChange += SetPause;
     }
@@ -44,22 +48,23 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         gamePaused = false;
+        inputEnabled = true;
         landing = false;
+        outOfFuel = false;
 
         height = GetHeight();
         landingTimerTarget = 3f;
 
         initialRotationEuler = new Vector3(0f, 180f, 0f);
 
-        rb = GetComponent<Rigidbody>();
         rb.maxAngularVelocity = 3f;
     }
 
     void FixedUpdate()
     {
-        if (!gamePaused)
+        if (!gamePaused && inputEnabled)
         {
-            if (Input.GetButton("Thrust"))
+            if (Input.GetButton("Thrust") && fuel > 0)
             {
                 rb.AddForce(transform.up * Input.GetAxis("Thrust") * thrustForce * Time.fixedDeltaTime, ForceMode.Acceleration);
 
@@ -81,7 +86,9 @@ public class PlayerController : MonoBehaviour
 
                 if (landingTimer >= landingTimerTarget)
                 {
+                    inputEnabled = false;
                     landing = false;
+                    landingTimer = 0f;
 
                     if (onLanding != null)
                         onLanding(true);
@@ -92,30 +99,48 @@ public class PlayerController : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-        if (velocity > maxLandingVelocity || angle > maxLandingAngle)
+        if (collision.gameObject.tag != null && collision.gameObject.tag == "Terrain")
         {
-            if (onLanding != null)
-                onLanding(false);
+            if (velocity > maxLandingVelocity || angle > maxLandingAngle)
+            {
+                inputEnabled = false;
+                landing = false;
+
+                if (onLanding != null)
+                    onLanding(false);
+            }
+            else
+                landing = true;
         }
-        else
-            landing = true;
     }
 
     void OnCollisionExit(Collision collision)
     {
-        landing = false;
-        landingTimer = 0f;
+        if (collision.gameObject.tag != null && collision.gameObject.tag == "Terrain")
+        {
+            landing = false;
+            landingTimer = 0f;
+        }
     }
 
     void Update()
     {
-        if (!gamePaused)
+        if (!gamePaused && inputEnabled)
         {
-            if (Input.GetButtonDown("Thrust") && onThrustChange != null)
-                onThrustChange(true);
+            if (fuel > 0)
+            {
+                if (Input.GetButtonDown("Thrust") && onThrustChange != null)
+                    onThrustChange(true);
 
-            if (Input.GetButtonUp("Thrust") && onThrustChange != null)
-                onThrustChange(false);
+                if (Input.GetButtonUp("Thrust") && onThrustChange != null)
+                    onThrustChange(false);
+            }
+            else if (!outOfFuel)
+            {
+                outOfFuel = true;
+                if (onOutOfFuel != null)
+                    onOutOfFuel();
+            }
 
             height = GetHeight();
             horizontalSpeed = rb.velocity.x;
@@ -128,6 +153,7 @@ public class PlayerController : MonoBehaviour
     void OnDisable()
     {
         GameManager.onLevelSetting -= SetInitialValues;
+        GameManager.onLevelSetting -= EnableInput;
 
         UIManager_Gameplay.onPauseChange -= SetPause;
     }
@@ -147,6 +173,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    void EnableInput()
+    {
+        inputEnabled = true;
+    }
+
     void SetInitialValues()
     {
         int initialX = UnityEngine.Random.Range(minInitialX, maxInitialX);
@@ -154,19 +185,22 @@ public class PlayerController : MonoBehaviour
         transform.position = initialPosition;
 
         transform.rotation = Quaternion.Euler(initialRotationEuler);
+
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
     }
 
     float GetHeight()
     {
-        float rayDistance = 500f;
+        float rayDistance = 100f;
 
         Ray ray;
         RaycastHit raycastHit;
 
         ray = new Ray(transform.position, -Vector3.up);
-        Physics.Raycast(ray, out raycastHit, rayDistance);
+        bool closeToSurface = Physics.Raycast(ray, out raycastHit, rayDistance);
         Debug.DrawRay(ray.origin, ray.direction * rayDistance, Color.yellow);
 
-        return raycastHit.distance;
+        return closeToSurface ? raycastHit.distance : rayDistance;
     }
 }
