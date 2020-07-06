@@ -7,23 +7,27 @@ public class PlayerModel : MonoBehaviour
 
     bool gamePaused;
 
-    [HideInInspector] public int fuel;
-    [HideInInspector] public int score;
-    public int scoreIncrease;
+    public int scoreIncreaseBase;
+    public float fuelBase;
+    public float fuelMultiplier;
 
-    [HideInInspector] public float height;
-    [HideInInspector] public float horizontalSpeed;
-    [HideInInspector] public float verticalSpeed;
-    [HideInInspector] public float time;
+    [Header("Base stats: ")]
+    public int score;
+
+    public float fuel;
+    public float height;
+    public float horizontalSpeed;
+    public float verticalSpeed;
+    public float time;
 
     public static event Action<string, int> onStatUpdateI;
     public static event Action<string, float> onStatUpdateF;
-    public static event Action<int> onScoreUpdate;
-    public static event Action<float> onTimeReset;
+    public static event Action<bool, int> onScoreUpdate;
+    public static event Action<float, float> onStatResetOnNewLevel;
 
     void OnEnable()
     {
-        GameManager.onLevelSetting += ResetTime;
+        GameManager.onLevelSetting += ResetStatsOnNewLevel;
         UIManager_Gameplay.onPauseChange += SetPause;
 
         PlayerController.onLanding += UpdateScore;
@@ -31,7 +35,7 @@ public class PlayerModel : MonoBehaviour
 
     void Start()
     {
-        fuel = controller.fuel;
+        fuel = fuelBase;
         height = controller.height;
 
         InitializeStatUI();
@@ -47,7 +51,7 @@ public class PlayerModel : MonoBehaviour
             verticalSpeed = controller.verticalSpeed;
             time += Time.deltaTime;
 
-            onStatUpdateI("Fuel", fuel);
+            onStatUpdateF("Fuel", fuel);
             onStatUpdateF("Height", height);
             onStatUpdateF("Horizontal speed", horizontalSpeed);
             onStatUpdateF("Vertical speed", verticalSpeed);
@@ -57,7 +61,7 @@ public class PlayerModel : MonoBehaviour
 
     void OnDisable()
     {
-        GameManager.onLevelSetting -= ResetTime;
+        GameManager.onLevelSetting -= ResetStatsOnNewLevel;
         UIManager_Gameplay.onPauseChange -= SetPause;
 
         PlayerController.onLanding -= UpdateScore;
@@ -71,13 +75,11 @@ public class PlayerModel : MonoBehaviour
     void InitializeStatUI()
     {
         if (onStatUpdateI != null)
-        {
-            onStatUpdateI("Fuel", fuel);
             onStatUpdateI("Score", score);
-        }
 
         if (onStatUpdateF != null)
         {
+            onStatUpdateF("Fuel", fuel);
             onStatUpdateF("Height", (int)height);
             onStatUpdateF("Horizontal speed", horizontalSpeed);
             onStatUpdateF("Vertical speed", verticalSpeed);
@@ -88,17 +90,20 @@ public class PlayerModel : MonoBehaviour
     void UpdateScore(bool landingSuccessful)
     {
         if (landingSuccessful)
-            score += scoreIncrease;
+            score += scoreIncreaseBase / (int)time;
 
         if (onScoreUpdate != null)
-            onScoreUpdate(score);
+            onScoreUpdate(landingSuccessful, score);
     }
 
-    void ResetTime()
+    void ResetStatsOnNewLevel()
     {
         time = 0f;
+        fuelBase *= fuelMultiplier;
+        fuel = fuelBase;
+        controller.fuel = fuel;
 
-        if (onTimeReset != null)
-            onTimeReset(time);
+        if (onStatResetOnNewLevel != null)
+            onStatResetOnNewLevel(time, fuel);
     }
 }

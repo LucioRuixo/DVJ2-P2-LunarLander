@@ -13,7 +13,6 @@ public class PlayerController : MonoBehaviour
     public int minInitialX;
     public int maxInitialX;
     public int InitialY;
-    public int fuel;
     public int fuelUsagePerSecond;
     int positionZ = 500;
 
@@ -24,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public float height;
     [HideInInspector] public float horizontalSpeed;
     [HideInInspector] public float verticalSpeed;
+    [HideInInspector] public float fuel;
     float velocity;
     float angle;
     float landingTimer;
@@ -54,6 +54,7 @@ public class PlayerController : MonoBehaviour
 
         height = GetHeight();
         landingTimerTarget = 3f;
+        fuel = model.fuelBase;
 
         initialRotationEuler = new Vector3(0f, 180f, 0f);
 
@@ -68,12 +69,12 @@ public class PlayerController : MonoBehaviour
             {
                 rb.AddForce(transform.up * Input.GetAxis("Thrust") * thrustForce * Time.fixedDeltaTime, ForceMode.Acceleration);
 
-                if (fuel > 0)
+                if (fuel > 0f)
                 {
                     fuel -= (int)(fuelUsagePerSecond * Time.fixedDeltaTime);
 
-                    if (fuel < 0)
-                        fuel = 0;
+                    if (fuel < 0f)
+                        fuel = 0f;
                 }
             }
 

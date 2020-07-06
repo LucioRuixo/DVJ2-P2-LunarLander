@@ -1,7 +1,6 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class UIManager_Gameplay : MonoBehaviour
 {
@@ -22,9 +21,9 @@ public class UIManager_Gameplay : MonoBehaviour
         PlayerModel.onStatUpdateI += UpdateStatI;
         PlayerModel.onStatUpdateF += UpdateStatF;
         PlayerModel.onScoreUpdate += UpdateScore;
-        PlayerModel.onTimeReset += ResetTime;
+        PlayerModel.onScoreUpdate += EnableLandingMenu;
+        PlayerModel.onStatResetOnNewLevel += ResetStatsOnNewLevel;
 
-        PlayerController.onLanding += EnableLandingMenu;
     }
 
     void OnDisable()
@@ -32,16 +31,14 @@ public class UIManager_Gameplay : MonoBehaviour
         PlayerModel.onStatUpdateI -= UpdateStatI;
         PlayerModel.onStatUpdateF -= UpdateStatF;
         PlayerModel.onScoreUpdate -= UpdateScore;
-        PlayerModel.onTimeReset -= ResetTime;
+        PlayerModel.onScoreUpdate -= EnableLandingMenu;
+        PlayerModel.onStatResetOnNewLevel -= ResetStatsOnNewLevel;
 
-        PlayerController.onLanding -= EnableLandingMenu;
     }
 
     void UpdateStatI(string stat, int value)
     {
-        if (stat == "Fuel")
-            fuelText.text = "FUEL: " + value;
-        else
+        if (stat == "Score")
             scoreText.text = "SCORE: " + value;
     }
 
@@ -49,6 +46,9 @@ public class UIManager_Gameplay : MonoBehaviour
     {
         switch (stat)
         {
+            case "Fuel":
+                fuelText.text = "FUEL: " + (int)value;
+                break;
             case "Height":
                 heightText.text = "HEIGHT: " + value.ToString("0.0");
                 break;
@@ -66,19 +66,21 @@ public class UIManager_Gameplay : MonoBehaviour
         }
     }
 
-    void UpdateScore(int value)
+    void UpdateScore(bool landingSuccessful, int value)
     {
-        scoreText.text = "SCORE: " + value;
+        if (landingSuccessful)
+            scoreText.text = "SCORE: " + value;
     }
 
-    void ResetTime(float value)
+    void ResetStatsOnNewLevel(float newTime, float newFuel)
     {
-        timeText.text = "TIME: " + ((int)(value / 60)).ToString() + ":" + ((int)(value % 60)).ToString("00");
+        timeText.text = "TIME: " + ((int)(newTime / 60)).ToString() + ":" + ((int)(newTime % 60)).ToString("00");
+        fuelText.text = "FUEL: " + (int)newFuel;
     }
 
-    void EnableLandingMenu(bool landingSuccessful)
+    void EnableLandingMenu(bool landingSuccessful, int scoreDisplayValue)
     {
-        landingMenu.GetComponent<LandingMenu>().landingSuccessful = landingSuccessful;
+        landingMenu.GetComponent<LandingMenu>().InitializeValues(landingSuccessful, scoreDisplayValue);
         landingMenu.SetActive(true);
     }
 
@@ -88,11 +90,6 @@ public class UIManager_Gameplay : MonoBehaviour
 
         if (onPauseChange != null)
             onPauseChange(pauseMenu.activeSelf ? true : false);
-    }
-
-    public void ReturnToMainMenu()
-    {
-        SceneManager.LoadScene("Main Menu");
     }
 
     public void QuitGame()

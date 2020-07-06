@@ -1,27 +1,58 @@
 ﻿using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class LandingMenu : MonoBehaviour
 {
-    [HideInInspector] public bool landingSuccessful;
+    bool landingSuccessful;
 
+    int score;
+
+    public Button button;
     public TextMeshProUGUI landingText;
-    public TextMeshProUGUI setLevelButtonText;
+    public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI buttonText;
 
-    public static event Action<bool> onLevelSetting;
+    public static event Action onLevelSetting;
 
     void OnEnable()
     {
-        landingText.text = landingSuccessful ? "YOUR SHIP HAS LANDED!" : "YOUR SHIP CRASHED!";
-        setLevelButtonText.text = landingSuccessful ? "NEXT LEVEL" : "RESET LEVEL";
+        if (landingSuccessful)
+        {
+            landingText.text = "YOUR SHIP HAS LANDED!";
+            scoreText.text = "SCORE: " + score;
+            buttonText.text = "NEXT LEVEL";
+
+            button.onClick.AddListener(SetLevel);
+        }
+        else
+        {
+            landingText.text = "YOUR SHIP CRASHED!";
+            scoreText.text = "SCORE: " + score;
+            buttonText.text = "RETURN TO MAIN MENU";
+
+            button.onClick.AddListener(ReturnToMainMenu);
+        }
     }
 
-    public void SetLevel()
+    void SetLevel()
     {
         if (onLevelSetting != null)
-            onLevelSetting(landingSuccessful);
+            onLevelSetting();
 
         gameObject.SetActive(false);
+    }
+
+    void ReturnToMainMenu()
+    {
+        SceneManager.LoadScene("Main Menu");
+    }
+
+    public void InitializeValues(bool newLandingSuccessful, int newScore)
+    {
+        landingSuccessful = newLandingSuccessful;
+        score = newScore;
     }
 }

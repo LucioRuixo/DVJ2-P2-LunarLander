@@ -24727,10 +24727,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07641d4bcc8e61d4fae4a21f963c029d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 0}
-  fuel: 0
+  controller: {fileID: 10849558732003730}
+  scoreIncreaseBase: 5000
+  fuelMultiplier: 0.05
   score: 0
-  scoreIncrease: 0
+  fuel: 0
   height: 0
   horizontalSpeed: 0
   verticalSpeed: 0
@@ -24748,19 +24749,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   model: {fileID: 8603840607975620649}
-  minInitialX: 0
-  maxInitialX: 0
-  InitialY: 0
-  fuel: 0
-  fuelUsagePerSecond: 0
-  thrustForce: 0
-  rotationForce: 0
-  maxLandingVelocity: 0
-  maxLandingAngle: 0
+  minInitialX: 100
+  maxInitialX: 900
+  InitialY: 200
+  fuel: 5000
+  fuelUsagePerSecond: 250
+  thrustForce: 1000
+  rotationForce: 400
+  maxLandingVelocity: 20
+  maxLandingAngle: 30
   height: 0
   horizontalSpeed: 0
   verticalSpeed: 0
-  initialRotationEuler: {x: 0, y: 0, z: 0}
+  initialRotationEuler: {x: 0, y: 180, z: 0}
   rb: {fileID: 0}
 --- !u!114 &8424861563673724183
 MonoBehaviour:
@@ -24774,6 +24775,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aafd877a54db45a4dac6f59f71b78164, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rocketModel: {fileID: 0}
-  thrustPS: {fileID: 0}
-  explosionPS: {fileID: 0}
+  rocketModel: {fileID: 2932679823963521557}
+  thrustPS: {fileID: 3888038630868316964}
+  explosionPS: {fileID: 2735827447532868892}
+  debrisPS: {fileID: 1215152091460024259}

@@ -14,7 +14,8 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        SetLevel(true);
+        SetLevel();
+        Debug.Log("Hasta aca llega");
     }
 
     void OnDisable()
@@ -22,18 +23,15 @@ public class GameManager : MonoBehaviour
         LandingMenu.onLevelSetting -= SetLevel;
     }
 
-    void SetLevel(bool newLevel)
+    void SetLevel()
     {
-        if (newLevel)
+        foreach (Transform terrain in terrains)
         {
-            foreach (Transform terrain in terrains)
-            {
-                terrain.gameObject.SetActive(false);
-            }
-
-            int terrainIndex = UnityEngine.Random.Range(0, 3);
-            terrains.GetChild(terrainIndex).gameObject.SetActive(true);
+            terrain.gameObject.SetActive(false);
         }
+
+        int terrainIndex = UnityEngine.Random.Range(0, 3);
+        terrains.GetChild(terrainIndex).gameObject.SetActive(true);
 
         if (onLevelSetting != null)
             onLevelSetting();
