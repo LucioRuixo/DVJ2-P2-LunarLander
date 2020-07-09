@@ -2,7 +2,6 @@
 
 public class PlayerView : MonoBehaviour
 {
-    public GameObject rocketModel;
     public ParticleSystem thrustPS;
     public ParticleSystem explosionPS;
     public ParticleSystem debrisPS;
@@ -37,9 +36,6 @@ public class PlayerView : MonoBehaviour
 
         if (debrisPS && debrisPS.isPlaying)
             debrisPS.Stop();
-
-        if (rocketModel && !rocketModel.activeSelf)
-            rocketModel.SetActive(true);
     }
 
     void CheckIfLandingFailed(bool landingSuccessful)
@@ -54,13 +50,8 @@ public class PlayerView : MonoBehaviour
 
     void Explode()
     {
-        if (rocketModel && rocketModel.activeSelf)
-        {
-            rocketModel.SetActive(false);
-
-            if (explosionPS) explosionPS.Play();
-            if (debrisPS) debrisPS.Play();
-        }
+        if (explosionPS) explosionPS.Play();
+        if (debrisPS) debrisPS.Play();
     }
 
     void OnDisable()

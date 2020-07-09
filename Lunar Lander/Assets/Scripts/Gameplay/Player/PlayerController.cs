@@ -14,12 +14,12 @@ public class PlayerController : MonoBehaviour
     public int maxInitialX;
     public int InitialY;
     public int fuelUsagePerSecond;
-    int positionZ = 500;
 
     public float thrustForce;
     public float rotationForce;
     public float maxLandingVelocity;
     public float maxLandingAngle;
+    public float maxVelocity;
     [HideInInspector] public float height;
     [HideInInspector] public float horizontalSpeed;
     [HideInInspector] public float verticalSpeed;
@@ -29,9 +29,7 @@ public class PlayerController : MonoBehaviour
     float landingTimer;
     float landingTimerTarget;
 
-    public Vector3 initialRotationEuler;
-
-    public Rigidbody rb;
+    public Rigidbody2D rb;
 
     public static event Action<bool> onThrustChange;
     public static event Action<bool> onLanding;
@@ -55,31 +53,39 @@ public class PlayerController : MonoBehaviour
         height = GetHeight();
         landingTimerTarget = 3f;
         fuel = model.fuelBase;
-
-        initialRotationEuler = new Vector3(0f, 180f, 0f);
-
-        if (rb) rb.maxAngularVelocity = 3f;
     }
 
     void FixedUpdate()
     {
         if (!gamePaused && inputEnabled)
         {
-            if (Input.GetButton("Thrust") && fuel > 0)
+            if (rb)
             {
-                if (rb) rb.AddForce(transform.up * Input.GetAxis("Thrust") * thrustForce * Time.fixedDeltaTime, ForceMode.Acceleration);
-
-                if (fuel > 0f)
+                if (Input.GetButton("Thrust") && fuel > 0)
                 {
-                    fuel -= (int)(fuelUsagePerSecond * Time.fixedDeltaTime);
+                    if (rb) rb.AddForce(transform.up * Input.GetAxis("Thrust") * thrustForce * Time.fixedDeltaTime, ForceMode2D.Force);
 
-                    if (fuel < 0f)
-                        fuel = 0f;
+                    if (rb.velocity.x > maxVelocity)
+                        rb.velocity = new Vector2(maxVelocity, rb.velocity.y);
+                    if (rb.velocity.y > maxVelocity)
+                        rb.velocity = new Vector2(rb.velocity.x, maxVelocity);
+
+                    if (fuel > 0f)
+                    {
+                        fuel -= (int)(fuelUsagePerSecond * Time.fixedDeltaTime);
+
+                        if (fuel < 0f)
+                            fuel = 0f;
+                    }
                 }
-            }
 
-            if (Input.GetButton("Rotate"))
-                if (rb) rb.AddTorque(transform.forward * Input.GetAxis("Rotate") * rotationForce * Time.fixedDeltaTime, ForceMode.Force);
+                if (Input.GetButton("Rotate"))
+                    if (rb) rb.AddTorque(-Input.GetAxis("Rotate") * rotationForce * Time.fixedDeltaTime, ForceMode2D.Force);
+
+                horizontalSpeed = rb.velocity.x;
+                verticalSpeed = rb.velocity.y;
+                velocity = rb.velocity.magnitude;
+            }
 
             if (landing && !(velocity > maxLandingVelocity || angle > maxLandingAngle))
             {
@@ -98,7 +104,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag != null && collision.gameObject.tag == "Terrain")
         {
@@ -115,7 +121,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void OnCollisionExit(Collision collision)
+    void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.tag != null && collision.gameObject.tag == "Terrain")
         {
@@ -145,13 +151,7 @@ public class PlayerController : MonoBehaviour
         }
 
         height = GetHeight();
-        angle = Vector3.Angle(Vector3.up, transform.up);
-        if (rb)
-        {
-            horizontalSpeed = rb.velocity.x;
-            verticalSpeed = rb.velocity.y;
-            velocity = rb.velocity.magnitude;
-        }
+        angle = Vector2.Angle(Vector2.up, transform.up);
     }
 
     void OnDisable()
@@ -173,7 +173,7 @@ public class PlayerController : MonoBehaviour
             rb.Sleep();
         else
         {
-            Vector3 velocity = new Vector3(horizontalSpeed, verticalSpeed, 0f);
+            Vector2 velocity = new Vector2(horizontalSpeed, verticalSpeed);
             rb.velocity = velocity;
 
             rb.WakeUp();
@@ -188,29 +188,34 @@ public class PlayerController : MonoBehaviour
     void SetInitialValues()
     {
         int initialX = UnityEngine.Random.Range(minInitialX, maxInitialX);
-        Vector3 initialPosition = new Vector3(initialX, InitialY, positionZ);
+        Vector2 initialPosition = new Vector2(initialX, InitialY);
         transform.position = initialPosition;
 
-        transform.rotation = Quaternion.Euler(initialRotationEuler);
+        transform.rotation = Quaternion.Euler(Vector2.zero);
 
         if (rb)
         {
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
+            rb.velocity = Vector2.zero;
+            rb.angularVelocity = 0f;
         }
     }
 
     float GetHeight()
     {
-        float rayDistance = 100f;
+        float rayDistance = 300f;
+        float heightOffset = 2.6f;
+
+        Vector3 position = transform.position;
+        position.y -= heightOffset;
 
         Ray ray;
-        RaycastHit raycastHit;
+        RaycastHit2D raycastHit;
 
-        ray = new Ray(transform.position, -Vector3.up);
-        bool closeToSurface = Physics.Raycast(ray, out raycastHit, rayDistance);
+        ray = new Ray(position, -Vector2.up);
+        raycastHit = Physics2D.Raycast(position, -Vector2.up, rayDistance);
         Debug.DrawRay(ray.origin, ray.direction * rayDistance, Color.yellow);
 
-        return closeToSurface ? raycastHit.distance : rayDistance;
+        Debug.Log(raycastHit.collider);
+        return raycastHit.distance;
     }
 }
