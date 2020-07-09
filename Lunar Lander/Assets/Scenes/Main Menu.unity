@@ -1453,15 +1453,15 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Space ship model:
+  m_text: 'Spaceship sprite:
 
-    "Atom Rocket Model", AXINOVA
+    "Space Shooter Extension", Kenney
 
 
-    Terrain textures:
+    Terrain
+    textures:
 
-    "Terrain
-    Tools Sample Assets", UNITY TECHNOLOGIES'
+    "Terrain Tools Sample Assets", UNITY TECHNOLOGIES'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
